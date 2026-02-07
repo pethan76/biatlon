@@ -85,66 +85,60 @@ const fields = [
   o_min, o_sec, o_tenth
 ];
 
-// allow only digits
+// only digits
 fields.forEach(f=>{
   f.addEventListener("input", ()=>{
     f.value = f.value.replace(/\D/g,'');
   });
 });
 
-// auto jump
+// auto jump + recalc
 fields.forEach((f,i)=>{
   f.addEventListener("input", ()=>{
     if(f.value.length === f.maxLength){
       fields[i+1]?.focus();
     }
-    calculate();
+    tryCalculate();
   });
 });
 
-// limit seconds 0–59
+// limits
 [w_sec,o_sec].forEach(f=>{
   f.addEventListener("input", ()=>{
-    let v = Number(f.value);
-    if(v>59) f.value = 59;
+    if(Number(f.value)>59) f.value=59;
   });
 });
 
-// limit tenths 0–9
 [w_tenth,o_tenth].forEach(f=>{
   f.addEventListener("input", ()=>{
-    let v = Number(f.value);
-    if(v>9) f.value = 9;
+    if(Number(f.value)>9) f.value=9;
   });
 });
 
-function toSeconds(min, sec, tenth){
-    min = Number(min);
-    sec = Number(sec);
-    tenth = Number(tenth);
-
-    if(isNaN(min)||isNaN(sec)||isNaN(tenth)) return NaN;
-
-    return min*60 + sec + tenth/10;
+function allFilled(){
+  return fields.every(f => f.value !== "");
 }
 
-function calculate(){
+function toSeconds(min, sec, tenth){
+    return Number(min)*60 + Number(sec) + Number(tenth)/10;
+}
 
-    let winner = toSeconds(
-        w_min.value, w_sec.value, w_tenth.value
-    );
+function tryCalculate(){
 
-    let offset = toSeconds(
-        o_min.value, o_sec.value, o_tenth.value
-    );
-
-    if(winner<=0 || isNaN(winner) || isNaN(offset)){
+    if(!allFilled()){
         result.innerText = "";
         return;
     }
 
-    let points = ((winner - offset) / winner) * 100;
+    let winner = toSeconds(w_min.value,w_sec.value,w_tenth.value);
+    let offset = toSeconds(o_min.value,o_sec.value,o_tenth.value);
 
+    if(winner<=0){
+        result.innerText="";
+        return;
+    }
+
+    let points = ((winner - offset) / winner) * 100;
     result.innerText = "Body: " + points.toFixed(2);
 }
 </script>
