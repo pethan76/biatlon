@@ -85,17 +85,17 @@ const fields = [
   o_min, o_sec, o_tenth
 ];
 
-// only digits
+// digits only
 fields.forEach(f=>{
   f.addEventListener("input", ()=>{
     f.value = f.value.replace(/\D/g,'');
   });
 });
 
-// auto jump + recalc
+// auto jump (keyup works better on mobile)
 fields.forEach((f,i)=>{
-  f.addEventListener("input", ()=>{
-    if(f.value.length === f.maxLength){
+  f.addEventListener("keyup", ()=>{
+    if(f.value.length >= f.maxLength){
       fields[i+1]?.focus();
     }
     tryCalculate();
