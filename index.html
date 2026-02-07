@@ -35,6 +35,27 @@ h2{ margin-bottom: 25px; }
     text-align:center;
 }
 
+.buttons{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+button{
+    flex:1;
+    padding:16px;
+    font-size:18px;
+    background:#0066cc;
+    color:white;
+    border:none;
+    border-radius:10px;
+}
+
+button.secondary{
+    background:#888;
+    font-size:16px;
+}
+
 #result{
     margin-top:25px;
     font-size:26px;
@@ -51,6 +72,8 @@ h2{ margin-bottom: 25px; }
 @media (prefers-color-scheme: dark){
     body{ background:#111; color:#eee; }
     .time-row input{ background:#222; color:#eee; border:1px solid #444; }
+    button{ background:#1a73e8; }
+    button.secondary{ background:#666; }
 }
 </style>
 </head>
@@ -73,6 +96,11 @@ h2{ margin-bottom: 25px; }
   <input id="o_tenth" inputmode="numeric" maxlength="1" placeholder="des">
 </div>
 
+<div class="buttons">
+  <button onclick="calculate()">Spočítat</button>
+  <button class="secondary" onclick="clearAll()">Vymazat</button>
+</div>
+
 <div id="result"></div>
 
 <div class="footer">
@@ -80,25 +108,31 @@ Vytvořil ZPH (2026)
 </div>
 
 <script>
+const clickSound = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=");
+
 const fields = [
   w_min, w_sec, w_tenth,
   o_min, o_sec, o_tenth
 ];
 
-// digits only
+// digits only + clear on focus
 fields.forEach(f=>{
   f.addEventListener("input", ()=>{
     f.value = f.value.replace(/\D/g,'');
   });
+
+  f.addEventListener("focus", ()=>{
+    f.value = "";
+  });
 });
 
-// auto jump (keyup works better on mobile)
+// auto jump
 fields.forEach((f,i)=>{
   f.addEventListener("keyup", ()=>{
     if(f.value.length >= f.maxLength){
+      clickSound.play();
       fields[i+1]?.focus();
     }
-    tryCalculate();
   });
 });
 
@@ -115,31 +149,30 @@ fields.forEach((f,i)=>{
   });
 });
 
-function allFilled(){
-  return fields.every(f => f.value !== "");
-}
-
 function toSeconds(min, sec, tenth){
-    return Number(min)*60 + Number(sec) + Number(tenth)/10;
+  return Number(min)*60 + Number(sec) + Number(tenth)/10;
 }
 
-function tryCalculate(){
+function calculate(){
 
-    if(!allFilled()){
-        result.innerText = "";
-        return;
-    }
+  clickSound.play();
 
-    let winner = toSeconds(w_min.value,w_sec.value,w_tenth.value);
-    let offset = toSeconds(o_min.value,o_sec.value,o_tenth.value);
+  let winner = toSeconds(w_min.value,w_sec.value,w_tenth.value);
+  let offset = toSeconds(o_min.value,o_sec.value,o_tenth.value);
 
-    if(winner<=0){
-        result.innerText="";
-        return;
-    }
+  if(!winner || isNaN(offset)){
+    result.innerText = "Vyplň všechna pole.";
+    return;
+  }
 
-    let points = ((winner - offset) / winner) * 100;
-    result.innerText = "Body: " + points.toFixed(2);
+  let points = ((winner - offset) / winner) * 100;
+  result.innerText = "Body: " + points.toFixed(2);
+}
+
+function clearAll(){
+  fields.forEach(f=>f.value="");
+  result.innerText="";
+  w_min.focus();
 }
 </script>
 
