@@ -27,23 +27,12 @@ h2{ margin-bottom: 25px; }
 }
 
 .time-row input{
-    width: 70px;            /* <<< SHORT FIELDS */
+    width:60px;
     padding:12px;
     font-size:18px;
     border-radius:8px;
     border:1px solid #ccc;
     text-align:center;
-}
-
-button{
-    width:100%;
-    padding:16px;
-    font-size:20px;
-    background:#0066cc;
-    color:white;
-    border:none;
-    border-radius:10px;
-    margin-top:10px;
 }
 
 #result{
@@ -62,7 +51,6 @@ button{
 @media (prefers-color-scheme: dark){
     body{ background:#111; color:#eee; }
     .time-row input{ background:#222; color:#eee; border:1px solid #444; }
-    button{ background:#1a73e8; }
 }
 </style>
 </head>
@@ -73,19 +61,17 @@ button{
 
 <h4>Čas vítěze</h4>
 <div class="time-row">
-  <input id="w_min" inputmode="numeric" maxlength="2" placeholder="min">
+  <input id="w_min" inputmode="numeric" maxlength="3" placeholder="min">
   <input id="w_sec" inputmode="numeric" maxlength="2" placeholder="sek">
   <input id="w_tenth" inputmode="numeric" maxlength="1" placeholder="des">
 </div>
 
 <h4>Odstup závodníka</h4>
 <div class="time-row">
-  <input id="o_min" inputmode="numeric" maxlength="2" placeholder="min">
+  <input id="o_min" inputmode="numeric" maxlength="3" placeholder="min">
   <input id="o_sec" inputmode="numeric" maxlength="2" placeholder="sek">
   <input id="o_tenth" inputmode="numeric" maxlength="1" placeholder="des">
 </div>
-
-<button onclick="calculate()">Spočítat</button>
 
 <div id="result"></div>
 
@@ -99,20 +85,36 @@ const fields = [
   o_min, o_sec, o_tenth
 ];
 
+// allow only digits
+fields.forEach(f=>{
+  f.addEventListener("input", ()=>{
+    f.value = f.value.replace(/\D/g,'');
+  });
+});
+
 // auto jump
-fields.forEach((f, i) => {
-  f.addEventListener("input", () => {
+fields.forEach((f,i)=>{
+  f.addEventListener("input", ()=>{
     if(f.value.length === f.maxLength){
       fields[i+1]?.focus();
     }
+    calculate();
   });
 });
 
 // limit seconds 0–59
-[w_sec, o_sec].forEach(f=>{
+[w_sec,o_sec].forEach(f=>{
   f.addEventListener("input", ()=>{
     let v = Number(f.value);
-    if(v > 59) f.value = 59;
+    if(v>59) f.value = 59;
+  });
+});
+
+// limit tenths 0–9
+[w_tenth,o_tenth].forEach(f=>{
+  f.addEventListener("input", ()=>{
+    let v = Number(f.value);
+    if(v>9) f.value = 9;
   });
 });
 
@@ -136,8 +138,8 @@ function calculate(){
         o_min.value, o_sec.value, o_tenth.value
     );
 
-    if(isNaN(winner) || isNaN(offset)){
-        result.innerText = "Vyplň všechna pole.";
+    if(winner<=0 || isNaN(winner) || isNaN(offset)){
+        result.innerText = "";
         return;
     }
 
@@ -149,4 +151,3 @@ function calculate(){
 
 </body>
 </html>
-
