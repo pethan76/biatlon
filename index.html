@@ -21,13 +21,14 @@ h2{ margin-bottom: 25px; }
 
 .time-row{
     display:flex;
-    gap:8px;
+    justify-content:center;
+    gap:6px;
     margin-bottom:12px;
 }
 
 .time-row input{
-    flex:1;
-    padding:14px;
+    width: 70px;            /* <<< SHORT FIELDS */
+    padding:12px;
     font-size:18px;
     border-radius:8px;
     border:1px solid #ccc;
@@ -72,16 +73,16 @@ button{
 
 <h4>Čas vítěze</h4>
 <div class="time-row">
-  <input id="w_min" inputmode="numeric" placeholder="min">
-  <input id="w_sec" inputmode="numeric" placeholder="sek">
-  <input id="w_tenth" inputmode="numeric" placeholder="des">
+  <input id="w_min" inputmode="numeric" maxlength="2" placeholder="min">
+  <input id="w_sec" inputmode="numeric" maxlength="2" placeholder="sek">
+  <input id="w_tenth" inputmode="numeric" maxlength="1" placeholder="des">
 </div>
 
 <h4>Odstup závodníka</h4>
 <div class="time-row">
-  <input id="o_min" inputmode="numeric" placeholder="min">
-  <input id="o_sec" inputmode="numeric" placeholder="sek">
-  <input id="o_tenth" inputmode="numeric" placeholder="des">
+  <input id="o_min" inputmode="numeric" maxlength="2" placeholder="min">
+  <input id="o_sec" inputmode="numeric" maxlength="2" placeholder="sek">
+  <input id="o_tenth" inputmode="numeric" maxlength="1" placeholder="des">
 </div>
 
 <button onclick="calculate()">Spočítat</button>
@@ -89,10 +90,32 @@ button{
 <div id="result"></div>
 
 <div class="footer">
-Vytvořila ZPH (2026)
+Vytvořil ZPH (2026)
 </div>
 
 <script>
+const fields = [
+  w_min, w_sec, w_tenth,
+  o_min, o_sec, o_tenth
+];
+
+// auto jump
+fields.forEach((f, i) => {
+  f.addEventListener("input", () => {
+    if(f.value.length === f.maxLength){
+      fields[i+1]?.focus();
+    }
+  });
+});
+
+// limit seconds 0–59
+[w_sec, o_sec].forEach(f=>{
+  f.addEventListener("input", ()=>{
+    let v = Number(f.value);
+    if(v > 59) f.value = 59;
+  });
+});
+
 function toSeconds(min, sec, tenth){
     min = Number(min);
     sec = Number(sec);
@@ -126,3 +149,4 @@ function calculate(){
 
 </body>
 </html>
+
