@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Biatlon – výpočet bodů</title>
+
+<style>
+body{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    max-width: 420px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+    background: #ffffff;
+    color: #111;
+}
+
+h2{
+    margin-bottom: 25px;
+}
+
+input{
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+button{
+    width: 100%;
+    padding: 16px;
+    font-size: 20px;
+    background:#0066cc;
+    color:white;
+    border:none;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+button:active{
+    background:#004f9e;
+}
+
+#result{
+    margin-top:25px;
+    font-size:26px;
+    font-weight:bold;
+}
+
+.footer{
+    margin-top: 50px;
+    font-size: 12px;
+    font-style: italic;
+    color: #999;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body{
+        background:#111;
+        color:#eee;
+    }
+    input{
+        background:#222;
+        color:#eee;
+        border:1px solid #444;
+    }
+    button{
+        background:#1a73e8;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h2>Bodové hodnocení biatlonu</h2>
+
+<input 
+  id="winner" 
+  placeholder="Čas vítěze (mm:ss,s)" 
+  inputmode="decimal"
+>
+
+<input 
+  id="athlete" 
+  placeholder="Odstup závodníka (mm:ss,s)" 
+  inputmode="decimal"
+>
+
+<button onclick="calculate()">Spočítat</button>
+
+<div id="result"></div>
+
+<div class="footer">
+Vytvořil Petr Hanák (2026)
+</div>
+
+<script>
+function timeToSeconds(t){
+    let parts = t.trim().replace(",", ".").split(":");
+
+    if(parts.length !== 2) return NaN;
+
+    let min = parseFloat(parts[0]);
+    let sec = parseFloat(parts[1]);
+
+    if(isNaN(min) || isNaN(sec)) return NaN;
+
+    return min*60 + sec;
+}
+
+function calculate(){
+
+    let winner = timeToSeconds(
+        document.getElementById("winner").value
+    );
+
+    let offset = timeToSeconds(
+        document.getElementById("athlete").value
+    );
+
+    if(isNaN(winner) || isNaN(offset)){
+        document.getElementById("result").innerText =
+          "Zadej čas ve formátu mm:ss,s";
+        return;
+    }
+
+    let points = ((winner - offset) / winner) * 100;
+
+    document.getElementById("result").innerText =
+      "Body: " + points.toFixed(2);
+}
+</script>
+
+</body>
+</html>
